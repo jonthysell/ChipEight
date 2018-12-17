@@ -50,11 +50,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ChipEight\ChipEight.csproj">
-      <Project>{ecd9a82f-77c0-4bbc-bc45-38f75d14919e}</Project>
-      <Name>ChipEight</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <Import Project="..\ChipEight\ChipEight.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

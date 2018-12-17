@@ -6,7 +6,7 @@ ChipEight is a CHIP-8 emulator written in C#.
 
 ### ChipEight ###
 
-A .NET Standard 2.0 library containing the emulator.
+A shared library containing the emulator.
 
 ### ChipEight.ConsoleApp ###
 
