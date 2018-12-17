@@ -8,6 +8,10 @@ ChipEight is a CHIP-8 emulator written in C#.
 
 A shared library containing the emulator.
 
+### ChipEight.WinFormsApp ###
+
+A sample winforms app using the ChipEight library.
+
 ### ChipEight.ConsoleApp ###
 
 A sample console app using the ChipEight library.
