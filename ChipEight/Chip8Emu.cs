@@ -97,7 +97,7 @@ namespace ChipEight
                     _view.StopBeep();
                 }
                 _soundTimer = value;
-                _nextSoundTimerCycle = _curentCycle + (CycleRateHz / TimerRateHz); ;
+                _nextSoundTimerCycle = _curentCycle + (CycleRateHz / TimerRateHz);
             }
         }
         private byte _soundTimer = 0;
@@ -212,8 +212,11 @@ namespace ChipEight
 
         public void Stop()
         {
-            _cts.Cancel();
-            _task.Wait();
+            _cts?.Cancel();
+            _task?.Wait();
+
+            _cts = null;
+            _task = null;
         }
 
         public void Step()

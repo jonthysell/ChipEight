@@ -30,9 +30,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,6 +49,12 @@ namespace ChipEight.WinFormsApp
         public static Chip8Emu Emulator { get; private set; } = null;
 
         public static LogLevel LogLevel { get; private set; } = LogLevel.DebugInfo;
+
+        public static CancellationTokenSource CTS { get; private set; } = null;
+
+        public static Task DisplayTask { get; private set; } = null;
+
+        private static TimeSpan ViewDelay = TimeSpan.FromSeconds(1 / 60.0);
 
         public MainForm()
         {
@@ -90,30 +98,91 @@ namespace ChipEight.WinFormsApp
         public void UpdateDisplay(bool[,] displayData)
         {
             DisplayBuffer = displayData;
+        }
 
+        #endregion
+
+        public void DrawDisplay()
+        {
             MethodInvoker updater = delegate
             {
-                DrawScreen();
+                Bitmap bmp = GetDisplayDataAsBitmap(DisplayBuffer);
+                int scaleFactor = (int)Math.Floor(Math.Min((double)mainPictureBox.Width / bmp.Width, (double)mainPictureBox.Height / bmp.Height));
+                mainPictureBox.Image = ResizeImage(bmp, scaleFactor);
             };
 
             mainPictureBox.BeginInvoke(updater);
         }
 
-        #endregion
-
-        public void DrawScreen()
+        public static Bitmap GetDisplayDataAsBitmap(bool[,] displayData)
         {
-            Bitmap newScreen = new Bitmap(Chip8Emu.DisplayColumns, Chip8Emu.DisplayRows);
+            Bitmap bmp = new Bitmap(displayData.GetLength(0), displayData.GetLength(1), PixelFormat.Format1bppIndexed);
 
-            for (int y = 0; y < Chip8Emu.DisplayRows; y++)
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, bmp.PixelFormat);
+
+            IntPtr ptr = data.Scan0;
+
+            for (int y = 0; y < displayData.GetLength(1); y++)
             {
-                for (int x = 0; x < Chip8Emu.DisplayColumns; x++)
+                for (int x = 0; x < displayData.GetLength(0); x++)
                 {
-                    newScreen.SetPixel(x, y, DisplayBuffer[x, y] ? Color.White : Color.Black);
+                    SetIndexedPixel(x, y, data, !displayData[x, y]);
                 }
             }
 
-            mainPictureBox.Image = newScreen;
+            bmp.UnlockBits(data);
+
+            return bmp;
+        }
+
+        // Adapted from https://stackoverflow.com/questions/1922040/how-to-resize-an-image-c-sharp
+        public static Bitmap ResizeImage(Image image, int scaleFactor)
+        {
+            scaleFactor = Math.Max(1, scaleFactor);
+
+            int width = image.Width * scaleFactor;
+            int height = image.Height * scaleFactor;
+
+            Rectangle destRect = new Rectangle(0, 0, width, height);
+            Bitmap destImage = new Bitmap(width, height);
+
+            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (Graphics graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.AssumeLinear;
+                graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                graphics.SmoothingMode = SmoothingMode.None;
+                graphics.PixelOffsetMode = PixelOffsetMode.None;
+
+                using (ImageAttributes wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return destImage;
+        }
+
+        // Adapted from https://stackoverflow.com/questions/10045238/lockbits-stride-on-1bpp-indexed-image-byte-boundaries
+        private static void SetIndexedPixel(int x, int y, BitmapData bmd, bool pixel)
+        {
+            int index = y * bmd.Stride + (x >> 3);
+            byte p = Marshal.ReadByte(bmd.Scan0, index);
+            byte mask = (byte)(0x80 >> (x & 0x7));
+
+            if (pixel)
+            {
+                p &= (byte)(mask ^ 0xff);
+            }
+            else
+            {
+                p |= mask;
+            }
+
+            Marshal.WriteByte(bmd.Scan0, index, p);
         }
 
         public void HandleException(Exception ex)
@@ -125,7 +194,9 @@ namespace ChipEight.WinFormsApp
         {
             try
             {
+                CTS?.Cancel();
                 Emulator?.Stop();
+                DisplayTask?.Wait();
 
                 OpenFileDialog dialog = new OpenFileDialog();
 
@@ -139,9 +210,28 @@ namespace ChipEight.WinFormsApp
 
                     byte[] romData = File.ReadAllBytes(romFile);
                     Emulator = new Chip8Emu(this, romData);
+
+                    DisplayBuffer = new bool[Chip8Emu.DisplayColumns, Chip8Emu.DisplayRows];
                 }
 
-                Emulator?.Start(new CancellationTokenSource());
+                CTS = new CancellationTokenSource();
+
+                Emulator?.Start(CTS);
+                DisplayTask = Task.Factory.StartNew(() =>
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+
+                    while (!CTS.Token.IsCancellationRequested)
+                    {
+                        if (sw.Elapsed >= ViewDelay)
+                        {
+                            DrawDisplay();
+                            sw.Restart();
+                        }
+                        Thread.Yield();
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -163,7 +253,9 @@ namespace ChipEight.WinFormsApp
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            CTS?.Cancel();
             Emulator?.Stop();
+            DisplayTask?.Wait();
         }
     }
 }
