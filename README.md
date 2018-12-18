@@ -20,7 +20,7 @@ A sample console app using the ChipEight library.
 
 Unit tests for the ChipEight library.
 
-ChipEight is developed in C# for .NET 2.0.
+ChipEight is developed in C# for .NET 4.6.1.
 
 ## Errata ##
 
