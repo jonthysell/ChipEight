@@ -25,15 +25,12 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -46,6 +43,23 @@ namespace ChipEight.WinFormsApp
 {
     public partial class MainForm : Form, IChip8EmuView
     {
+        public static string ProgramName
+        {
+            get
+            {
+                Version version = Assembly.GetExecutingAssembly().GetName().Version;
+                return string.Format("{0} v{1}", Assembly.GetExecutingAssembly().GetName().Name, (version.Build == 0 && version.Revision == 0) ? string.Format("{0}.{1}", version.Major, version.Minor) : Assembly.GetExecutingAssembly().GetName().Version.ToString());
+            }
+        }
+
+        public static string ProgramCopyright
+        {
+            get
+            {
+                return ((AssemblyCopyrightAttribute)(Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), true)[0])).Copyright;
+            }
+        }
+
         public static Chip8Emu Emulator { get; private set; } = null;
 
         public static LogLevel LogLevel { get; private set; } = LogLevel.DebugInfo;
@@ -59,6 +73,7 @@ namespace ChipEight.WinFormsApp
         public MainForm()
         {
             InitializeComponent();
+            Text = ProgramName;
         }
 
         #region IChip8EmuView
@@ -237,6 +252,9 @@ namespace ChipEight.WinFormsApp
                     Emulator = new Chip8Emu(this, romData);
 
                     DisplayBuffer = new bool[Chip8Emu.DisplayColumns, Chip8Emu.DisplayRows];
+
+                    Emulator.ShiftQuirkEnabled = DialogResult.Yes == MessageBox.Show(Resources.ShiftQuirkMessage, Resources.QuirkCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                    Emulator.LoadStoreQuirkEnabled = DialogResult.Yes == MessageBox.Show(Resources.LoadStoreQuirkMessage, Resources.QuirkCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
                 }
 
                 CTS = new CancellationTokenSource();
@@ -269,6 +287,47 @@ namespace ChipEight.WinFormsApp
             try
             {
                 Close();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        private void keyboardMappingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+
+                sb.AppendLine("1 2 3 4 | 1 2 3 C");
+                sb.AppendLine("Q W E R | 4 5 6 D");
+                sb.AppendLine("A S D F | 7 8 9 E");
+                sb.AppendLine("Z X C V | A 0 B F");
+
+                MessageBox.Show(sb.ToString(), Resources.KeyboardMappingCaption, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+
+                sb.AppendLine(ProgramName);
+                sb.AppendLine();
+
+                sb.AppendLine(ProgramCopyright);
+                sb.AppendLine();
+
+                sb.Append(string.Join(Environment.NewLine + Environment.NewLine, _license));
+
+                MessageBox.Show(sb.ToString(), Resources.AboutCaption, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -375,5 +434,11 @@ namespace ChipEight.WinFormsApp
                 case Keys.V: SetKeyByName("F", false); break;
             }
         }
+
+        private static readonly string[] _license = {
+            @"Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ""Software""), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:",
+            @"The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.",
+            @"THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."
+        };
     }
 }

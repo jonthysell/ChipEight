@@ -117,13 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AboutCaption" xml:space="preserve">
+    <value>About ChipEight.WinFormsApp</value>
+  </data>
   <data name="ExceptionCaption" xml:space="preserve">
     <value>Exception</value>
   </data>
   <data name="ExceptionTextFormat" xml:space="preserve">
     <value>{0}</value>
   </data>
+  <data name="KeyboardMappingCaption" xml:space="preserve">
+    <value>Keyboard Mapping</value>
+  </data>
+  <data name="LoadStoreQuirkMessage" xml:space="preserve">
+    <value>Enable the Load/Store quirk? (No for most roms)</value>
+  </data>
   <data name="OpenTitle" xml:space="preserve">
     <value>Open CHIP-8 ROM</value>
+  </data>
+  <data name="QuirkCaption" xml:space="preserve">
+    <value>Quirk Prompt</value>
+  </data>
+  <data name="ShiftQuirkMessage" xml:space="preserve">
+    <value>Enable the Shift quirk? (No for most roms)</value>
   </data>
 </root>

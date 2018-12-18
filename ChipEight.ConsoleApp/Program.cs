@@ -27,6 +27,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,6 +36,23 @@ namespace ChipEight.ConsoleApp
 {
     public class Program
     {
+        public static string ProgramName
+        {
+            get
+            {
+                Version version = Assembly.GetExecutingAssembly().GetName().Version;
+                return string.Format("{0} v{1}", Assembly.GetExecutingAssembly().GetName().Name, (version.Build == 0 && version.Revision == 0) ? string.Format("{0}.{1}", version.Major, version.Minor) : Assembly.GetExecutingAssembly().GetName().Version.ToString());
+            }
+        }
+
+        public static string ProgramCopyright
+        {
+            get
+            {
+                return ((AssemblyCopyrightAttribute)(Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), true)[0])).Copyright;
+            }
+        }
+
         public static Chip8EmuView View { get; private set; } = new Chip8EmuView();
 
         public static Chip8Emu Emulator { get; private set; }
@@ -45,11 +63,6 @@ namespace ChipEight.ConsoleApp
 
         public static void Main(string[] args)
         {
-            if (null == args || args.Length == 0)
-            {
-                throw new ArgumentNullException(nameof(args));
-            }
-
             Console.OutputEncoding = Encoding.UTF8;
             Console.SetWindowSize(Chip8Emu.DisplayColumns + Chip8EmuView.LogWidth, Chip8Emu.DisplayRows);
             Console.CursorVisible = false;
@@ -58,10 +71,46 @@ namespace ChipEight.ConsoleApp
             
             try
             {
-                View.Log($"Loading ROM: {args[0]}", LogLevel.Info);
+                // Parse args
+                bool shiftQuirkEnabled = false;
+                bool loadStoreQuirkEnabled = false;
+                string romFile = "";
 
-                byte[] romData = File.ReadAllBytes(args[0]);
+                for (int i = 0; i < args.Length; i++)
+                {
+                    switch (args[i].ToLower())
+                    {
+                        case "-shift":
+                        case "/shift":
+                        case "-shiftquirk":
+                        case "/shiftquirk":
+                            shiftQuirkEnabled = true;
+                            break;
+                        case "-loadstore":
+                        case "/loadstore":
+                        case "-loadstorequirk":
+                        case "/loadstorequirk":
+                            loadStoreQuirkEnabled = true;
+                            break;
+                        default:
+                            romFile = args[i];
+                            break;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(romFile))
+                {
+                    Usage();
+                    return;
+                }
+
+                View.Log($"Loading ROM: {romFile}", LogLevel.Info);
+
+                byte[] romData = File.ReadAllBytes(romFile);
                 Emulator = new Chip8Emu(View, romData);
+
+                Emulator.ShiftQuirkEnabled = shiftQuirkEnabled;
+                Emulator.LoadStoreQuirkEnabled = loadStoreQuirkEnabled;
 
                 Task uiTask = Task.Factory.StartNew(() =>
                 {
@@ -89,6 +138,28 @@ namespace ChipEight.ConsoleApp
             {
                 Console.Error.WriteLine($"Error: {ex.Message}");
             }
+        }
+
+        private static void Usage()
+        {
+            Console.WriteLine("{0} {1}", ProgramName, ProgramCopyright);
+            Console.WriteLine();
+            Console.WriteLine("Usage:");
+            Console.WriteLine("ChipEight.ConsoleApp.exe [options] RomFile");
+            Console.WriteLine();
+            Console.WriteLine("Options:");
+            Console.WriteLine("/shift      Enable the Shift quirk (required by some roms)");
+            Console.WriteLine("/loadstore  Enable the Load/Store quirk (required by some roms)");
+            Console.WriteLine();
+            Console.WriteLine("Control Mapping:");
+            Console.WriteLine("  Keys  | Key Pad ");
+            Console.WriteLine("1 2 3 4 | 1 2 3 C");
+            Console.WriteLine("Q W E R | 4 5 6 D");
+            Console.WriteLine("A S D F | 7 8 9 E");
+            Console.WriteLine("Z X C V | A 0 B F");
+            Console.WriteLine();
+            
+            Console.WriteLine();
         }
 
         private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)

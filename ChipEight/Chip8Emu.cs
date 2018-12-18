@@ -120,6 +120,14 @@ namespace ChipEight
 
         #endregion
 
+        #region Quirk Properties
+
+        public bool LoadStoreQuirkEnabled { get; set; } = false;
+
+        public bool ShiftQuirkEnabled { get; set; } = false;
+
+        #endregion
+
         private IChip8EmuView _view;
 
         private Random _random;
@@ -311,9 +319,19 @@ namespace ChipEight
                             DataRegisters[(opcode & 0x0F00) >> 8] -= DataRegisters[(opcode & 0x00F0) >> 4];
                             ProgramCounter += 2;
                             break;
-                        case 0x0006: // 8XY6: Shift VX >> 1, VF stores least significant bit
-                            DataRegisters[0xF] = (byte)(DataRegisters[(opcode & 0x0F00) >> 8] & 0x1);
-                            DataRegisters[(opcode & 0x0F00) >> 8] = (byte)(DataRegisters[(opcode & 0x0F00) >> 8] >> 1);
+                        case 0x0006: // 8XY6: Set VX = VY >> 1, (if quirk set VX = VX >> 1), VF stores least significant bit
+                            if (ShiftQuirkEnabled)
+                            {
+                                // VX = VX >> 1
+                                DataRegisters[0xF] = (byte)(DataRegisters[(opcode & 0x0F00) >> 8] & 0x1);
+                                DataRegisters[(opcode & 0x0F00) >> 8] = (byte)(DataRegisters[(opcode & 0x0F00) >> 8] >> 1);
+                            }
+                            else
+                            {
+                                // VX = VY >> 1
+                                DataRegisters[0xF] = (byte)(DataRegisters[(opcode & 0x00F0) >> 4] & 0x1);
+                                DataRegisters[(opcode & 0x0F00) >> 8] = (byte)(DataRegisters[(opcode & 0x00F0) >> 4] >> 1);
+                            }
                             ProgramCounter += 2;
                             break;
                         case 0x0007: // 8XY7: Set VX to VY - VX, VF = 1 when not borrow
@@ -321,9 +339,19 @@ namespace ChipEight
                             DataRegisters[(opcode & 0x0F00) >> 8] = (byte)(DataRegisters[(opcode & 0x00F0) >> 4] - DataRegisters[(opcode & 0x0F00) >> 8]);
                             ProgramCounter += 2;
                             break;
-                        case 0x000E: // 8XYE: Shift VX << 1, VF stores most significant bit
-                            DataRegisters[0xF] = (byte)((DataRegisters[(opcode & 0x0F00) >> 8] & 0x80) >> 7);
-                            DataRegisters[(opcode & 0x0F00) >> 8] = (byte)(DataRegisters[(opcode & 0x0F00) >> 8] << 1);
+                        case 0x000E: // 8XYE: Set VX = VY << 1, (if quirk set VX = VX << 1), VF stores most significant bit
+                            if (ShiftQuirkEnabled)
+                            {
+                                // VX = VX << 1
+                                DataRegisters[0xF] = (byte)((DataRegisters[(opcode & 0x0F00) >> 8] & 0x80) >> 7);
+                                DataRegisters[(opcode & 0x0F00) >> 8] = (byte)(DataRegisters[(opcode & 0x0F00) >> 8] << 1);
+                            }
+                            else
+                            {
+                                // VX = VY << 1
+                                DataRegisters[0xF] = (byte)((DataRegisters[(opcode & 0x00F0) >> 4] & 0x80) >> 7);
+                                DataRegisters[(opcode & 0x0F00) >> 8] = (byte)(DataRegisters[(opcode & 0x00F0) >> 4] << 1);
+                            }
                             ProgramCounter += 2;
                             break;
                         default:
@@ -472,20 +500,28 @@ namespace ChipEight
                                 ProgramCounter += 2;
                             }
                             break;
-                        case 0x0055: // FX55: Store V0 through VX into memory at I
+                        case 0x0055: // FX55: Store V0 through VX into memory at I (if not quirk, also set I = I + X + 1)
                             for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++)
                             {
                                 WriteMemory((ushort)(AddressRegister + i), DataRegisters[i]);
                             }
+                            if (!LoadStoreQuirkEnabled)
+                            {
+                                AddressRegister += (ushort)(1 + ((opcode & 0x0F00) >> 8));
+                            }
                             ProgramCounter += 2;
                             break;
-                        case 0x0065: // FX65: Fill V0 through VX from memory at I
+                        case 0x0065: // FX65: Fill V0 through VX from memory at I (if not quirk, also set I = I + X + 1)
                             for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++)
                             {
                                 if (AddressRegister + i < MemorySize)
                                 {
                                     DataRegisters[i] = Memory[AddressRegister + i];
                                 }
+                            }
+                            if (!LoadStoreQuirkEnabled)
+                            {
+                                AddressRegister += (ushort)(1 + ((opcode & 0x0F00) >> 8));
                             }
                             ProgramCounter += 2;
                             break;

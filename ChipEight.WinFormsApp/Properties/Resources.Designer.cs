@@ -61,6 +61,15 @@ namespace ChipEight.WinFormsApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to About ChipEight.WinFormsApp.
+        /// </summary>
+        internal static string AboutCaption {
+            get {
+                return ResourceManager.GetString("AboutCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Exception.
         /// </summary>
         internal static string ExceptionCaption {
@@ -79,11 +88,47 @@ namespace ChipEight.WinFormsApp.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Keyboard Mapping.
+        /// </summary>
+        internal static string KeyboardMappingCaption {
+            get {
+                return ResourceManager.GetString("KeyboardMappingCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable the Load/Store quirk? (No for most roms).
+        /// </summary>
+        internal static string LoadStoreQuirkMessage {
+            get {
+                return ResourceManager.GetString("LoadStoreQuirkMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open CHIP-8 ROM.
         /// </summary>
         internal static string OpenTitle {
             get {
                 return ResourceManager.GetString("OpenTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quirk Prompt.
+        /// </summary>
+        internal static string QuirkCaption {
+            get {
+                return ResourceManager.GetString("QuirkCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable the Shift quirk? (No for most roms).
+        /// </summary>
+        internal static string ShiftQuirkMessage {
+            get {
+                return ResourceManager.GetString("ShiftQuirkMessage", resourceCulture);
             }
         }
     }

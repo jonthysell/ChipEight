@@ -445,9 +445,37 @@ namespace ChipEight.Test
         }
 
         [TestMethod]
-        public void Opcode8XY6Test()
+        public void Opcode8XY6NoQuirkTest()
         {
-            // 8XY6: Shift VX >> 1, VF stores least significant bit
+            // 8XY6: Set VX = VY >> 1, (if quirk set VX = VX >> 1), VF stores least significant bit
+            for (byte x = 0; x < 0xF; x++)
+            {
+                for (byte y = 0; y < 0xF; y++)
+                {
+                    ushort opcode = (ushort)(0x8006 | (x << 8) | (y << 4));
+                    foreach (byte dataY in TestData)
+                    {
+                        byte expected = (byte)(dataY >> 1);
+                        byte lsb = (byte)(dataY & 0x1);
+                        SingleOpCodeTest(opcode, (emu, view) =>
+                        {
+                            emu.ShiftQuirkEnabled = false;
+                            emu.DataRegisters[y] = dataY;
+                        }, (emu, view) =>
+                        {
+                            Assert.AreEqual(expected, emu.DataRegisters[x], "Emu did not set the data register correctly.");
+                            Assert.AreEqual(lsb, emu.DataRegisters[0xF], "Emu did not set the LSB flag correctly.");
+                            Assert.AreEqual(Chip8Emu.RomStart + 2, emu.ProgramCounter, "Emu did not go to the next instruction.");
+                        });
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Opcode8XY6QuirkTest()
+        {
+            // 8XY6: Set VX = VY >> 1, (if quirk set VX = VX >> 1), VF stores least significant bit
             for (byte x = 0; x < 0xF; x++)
             {
                 ushort opcode = (ushort)(0x8006 | (x << 8));
@@ -457,6 +485,7 @@ namespace ChipEight.Test
                     byte lsb = (byte)(dataX & 0x1);
                     SingleOpCodeTest(opcode, (emu, view) =>
                     {
+                        emu.ShiftQuirkEnabled = true;
                         emu.DataRegisters[x] = dataX;
                     }, (emu, view) =>
                     {
@@ -502,9 +531,37 @@ namespace ChipEight.Test
         }
 
         [TestMethod]
-        public void Opcode8XYETest()
+        public void Opcode8XYENoQuirkTest()
         {
-            // 8XYE: Shift VX << 1, VF stores most significant bit
+            // 8XYE: Set VX = VY << 1, (if quirk set VX = VX << 1), VF stores most significant bit
+            for (byte x = 0; x < 0xF; x++)
+            {
+                for (byte y = 0; y < 0xF; y++)
+                {
+                    ushort opcode = (ushort)(0x800E | (x << 8) | (y << 4));
+                    foreach (byte dataY in TestData)
+                    {
+                        byte expected = (byte)(dataY << 1);
+                        byte msb = (byte)(dataY >> 7);
+                        SingleOpCodeTest(opcode, (emu, view) =>
+                        {
+                            emu.ShiftQuirkEnabled = false;
+                            emu.DataRegisters[y] = dataY;
+                        }, (emu, view) =>
+                        {
+                            Assert.AreEqual(expected, emu.DataRegisters[x], "Emu did not set the data register correctly.");
+                            Assert.AreEqual(msb, emu.DataRegisters[0xF], "Emu did not set the MSB flag correctly.");
+                            Assert.AreEqual(Chip8Emu.RomStart + 2, emu.ProgramCounter, "Emu did not go to the next instruction.");
+                        });
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Opcode8XYEQuirkTest()
+        {
+            // 8XYE: Set VX = VY << 1, (if quirk set VX = VX << 1), VF stores most significant bit
             for (byte x = 0; x < 0xF; x++)
             {
                 ushort opcode = (ushort)(0x800E | (x << 8));
@@ -514,6 +571,7 @@ namespace ChipEight.Test
                     byte msb = (byte)(dataX >> 7);
                     SingleOpCodeTest(opcode, (emu, view) =>
                     {
+                        emu.ShiftQuirkEnabled = true;
                         emu.DataRegisters[x] = dataX;
                     }, (emu, view) =>
                     {
@@ -955,17 +1013,19 @@ namespace ChipEight.Test
         }
 
         [TestMethod]
-        public void OpcodeFX55Test()
+        public void OpcodeFX55NoQuirkTest()
         {
-            // FX55: Store V0 through VX into memory at I
+            // FX55: Store V0 through VX into memory at I (if not quirk, also set I = I + X + 1)
             for (byte x = 0; x <= 0xF; x++)
             {
                 ushort opcode = (ushort)(0xF055 | (x << 8));
 
                 foreach (ushort address in TestAddresses)
                 {
+                    ushort expectedAddress = (ushort)(address + x + 1);
                     SingleOpCodeTest(opcode, (emu, view) =>
                     {
+                        emu.LoadStoreQuirkEnabled = false;
                         emu.AddressRegister = address;
                         for (int i = 0; i <= x; i++)
                         {
@@ -977,6 +1037,7 @@ namespace ChipEight.Test
                         {
                             TestMemory(emu, (ushort)(address + i), TestData[i % TestData.Length], "Emu did not set memory correctly.");
                         }
+                        Assert.AreEqual(expectedAddress, emu.AddressRegister, "Emu did not set address register correctly.");
                         Assert.AreEqual(Chip8Emu.RomStart + 2, emu.ProgramCounter, "Emu did not increment program counter.");
                     });
                 }
@@ -984,9 +1045,41 @@ namespace ChipEight.Test
         }
 
         [TestMethod]
-        public void OpcodeFX65Test()
+        public void OpcodeFX55QuirkTest()
         {
-            // FX65: Fill V0 through VX from memory at I
+            // FX55: Store V0 through VX into memory at I (if not quirk, also set I = I + X + 1)
+            for (byte x = 0; x <= 0xF; x++)
+            {
+                ushort opcode = (ushort)(0xF055 | (x << 8));
+
+                foreach (ushort address in TestAddresses)
+                {
+                    ushort expectedAddress = address;
+                    SingleOpCodeTest(opcode, (emu, view) =>
+                    {
+                        emu.LoadStoreQuirkEnabled = true;
+                        emu.AddressRegister = address;
+                        for (int i = 0; i <= x; i++)
+                        {
+                            emu.DataRegisters[i] = TestData[i % TestData.Length];
+                        }
+                    }, (emu, view) =>
+                    {
+                        for (int i = 0; i <= x; i++)
+                        {
+                            TestMemory(emu, (ushort)(address + i), TestData[i % TestData.Length], "Emu did not set memory correctly.");
+                        }
+                        Assert.AreEqual(expectedAddress, emu.AddressRegister, "Emu did not set address register correctly.");
+                        Assert.AreEqual(Chip8Emu.RomStart + 2, emu.ProgramCounter, "Emu did not increment program counter.");
+                    });
+                }
+            }
+        }
+
+        [TestMethod]
+        public void OpcodeFX65NoQuirkTest()
+        {
+            // FX65: Fill V0 through VX from memory at I (if not quirk, also set I = I + X + 1)
             for (byte x = 0; x <= 0xF; x++)
             {
                 ushort opcode = (ushort)(0xF065 | (x << 8));
@@ -995,8 +1088,10 @@ namespace ChipEight.Test
                 {
                     if (address + x < Chip8Emu.RomStart || address > Chip8Emu.RomStart + 1)
                     {
+                        ushort expectedAddress = (ushort)(address + x + 1);
                         SingleOpCodeTest(opcode, (emu, view) =>
                         {
+                            emu.LoadStoreQuirkEnabled = false;
                             emu.AddressRegister = address;
                             for (int i = 0; i <= x; i++)
                             {
@@ -1014,6 +1109,48 @@ namespace ChipEight.Test
                                     TestDataRegister(emu, (byte)i, TestData[i % TestData.Length], "Emu did not set data register correctly.");
                                 }
                             }
+                            Assert.AreEqual(expectedAddress, emu.AddressRegister, "Emu did not set address register correctly.");
+                            Assert.AreEqual(Chip8Emu.RomStart + 2, emu.ProgramCounter, "Emu did not increment program counter.");
+                        });
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void OpcodeFX65QuirkTest()
+        {
+            // FX65: Fill V0 through VX from memory at I (if not quirk, also set I = I + X + 1)
+            for (byte x = 0; x <= 0xF; x++)
+            {
+                ushort opcode = (ushort)(0xF065 | (x << 8));
+
+                foreach (ushort address in TestAddresses)
+                {
+                    if (address + x < Chip8Emu.RomStart || address > Chip8Emu.RomStart + 1)
+                    {
+                        ushort expectedAddress = address;
+                        SingleOpCodeTest(opcode, (emu, view) =>
+                        {
+                            emu.LoadStoreQuirkEnabled = true;
+                            emu.AddressRegister = address;
+                            for (int i = 0; i <= x; i++)
+                            {
+                                if (address + i < Chip8Emu.MemorySize)
+                                {
+                                    emu.Memory[address + i] = TestData[i % TestData.Length];
+                                }
+                            }
+                        }, (emu, view) =>
+                        {
+                            for (int i = 0; i <= x; i++)
+                            {
+                                if (address + i < Chip8Emu.MemorySize)
+                                {
+                                    TestDataRegister(emu, (byte)i, TestData[i % TestData.Length], "Emu did not set data register correctly.");
+                                }
+                            }
+                            Assert.AreEqual(expectedAddress, emu.AddressRegister, "Emu did not set address register correctly.");
                             Assert.AreEqual(Chip8Emu.RomStart + 2, emu.ProgramCounter, "Emu did not increment program counter.");
                         });
                     }
