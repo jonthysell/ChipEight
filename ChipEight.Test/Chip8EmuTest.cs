@@ -431,7 +431,7 @@ namespace ChipEight.Test
                                 emu.DataRegisters[x] = dataX;
                                 emu.DataRegisters[y] = dataY;
                                 expected = (byte)(emu.DataRegisters[x] - emu.DataRegisters[y]);
-                                borrow = (byte)(emu.DataRegisters[x] > emu.DataRegisters[y] ? 0x1 : 0x0);
+                                borrow = (byte)(emu.DataRegisters[x] >= emu.DataRegisters[y] ? 0x1 : 0x0);
                             }, (emu, view) =>
                             {
                                 Assert.AreEqual(expected, emu.DataRegisters[x], "Emu did not set the data register correctly.");
@@ -488,7 +488,7 @@ namespace ChipEight.Test
                                 emu.DataRegisters[x] = dataX;
                                 emu.DataRegisters[y] = dataY;
                                 expected = (byte)(emu.DataRegisters[y] - emu.DataRegisters[x]);
-                                borrow = (byte)(emu.DataRegisters[y] > emu.DataRegisters[x] ? 0x1 : 0x0);
+                                borrow = (byte)(emu.DataRegisters[y] >= emu.DataRegisters[x] ? 0x1 : 0x0);
                             }, (emu, view) =>
                             {
                                 Assert.AreEqual(expected, emu.DataRegisters[x], "Emu did not set the data register correctly.");

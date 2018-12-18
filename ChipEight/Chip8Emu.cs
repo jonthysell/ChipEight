@@ -307,7 +307,7 @@ namespace ChipEight
                             ProgramCounter += 2;
                             break;
                         case 0x0005: // 8XY5: Subtract VY from VX, VF = 1 when not borrow
-                            DataRegisters[0xF] = (byte)(DataRegisters[(opcode & 0x0F00) >> 8] > DataRegisters[(opcode & 0x00F0) >> 4] ? 0x1 : 0x0);
+                            DataRegisters[0xF] = (byte)(DataRegisters[(opcode & 0x0F00) >> 8] >= DataRegisters[(opcode & 0x00F0) >> 4] ? 0x1 : 0x0);
                             DataRegisters[(opcode & 0x0F00) >> 8] -= DataRegisters[(opcode & 0x00F0) >> 4];
                             ProgramCounter += 2;
                             break;
@@ -317,7 +317,7 @@ namespace ChipEight
                             ProgramCounter += 2;
                             break;
                         case 0x0007: // 8XY7: Set VX to VY - VX, VF = 1 when not borrow
-                            DataRegisters[0xF] = (byte)(DataRegisters[(opcode & 0x00F0) >> 4] > DataRegisters[(opcode & 0x0F00) >> 8] ? 0x1 : 0x0);
+                            DataRegisters[0xF] = (byte)(DataRegisters[(opcode & 0x00F0) >> 4] >= DataRegisters[(opcode & 0x0F00) >> 8] ? 0x1 : 0x0);
                             DataRegisters[(opcode & 0x0F00) >> 8] = (byte)(DataRegisters[(opcode & 0x00F0) >> 4] - DataRegisters[(opcode & 0x0F00) >> 8]);
                             ProgramCounter += 2;
                             break;
