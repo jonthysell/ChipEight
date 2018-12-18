@@ -257,5 +257,42 @@ namespace ChipEight.WinFormsApp
             Emulator?.Stop();
             DisplayTask?.Wait();
         }
+
+        private void keyPadMouseDown(object sender, MouseEventArgs e)
+        {
+            if (sender is Button b)
+            {
+                SetKeyByName(b.Text, true);
+            }
+        }
+
+        private void keyPadMouseUp(object sender, MouseEventArgs e)
+        {
+            if (sender is Button b)
+            {
+                SetKeyByName(b.Text, false);
+            }
+        }
+
+        private void SetKeyByName(string key, bool value)
+        {
+            KeyState[int.Parse(key, System.Globalization.NumberStyles.HexNumber)] = value;
+        }
+
+        private void keyPadKeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is Button b)
+            {
+                SetKeyByName(b.Text, true);
+            }
+        }
+
+        private void keyPadKeyUp(object sender, KeyEventArgs e)
+        {
+            if (sender is Button b)
+            {
+                SetKeyByName(b.Text, false);
+            }
+        }
     }
 }
