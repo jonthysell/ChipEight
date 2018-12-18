@@ -1,3 +1,5 @@
+![ChipEight ScreenShot](https://jonthysell.files.wordpress.com/2018/12/chipeightscreenshot.png)
+
 # ChipEight #
 
 ChipEight is a CHIP-8 emulator written in C#.
