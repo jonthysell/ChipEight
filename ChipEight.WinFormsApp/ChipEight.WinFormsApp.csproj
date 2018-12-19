@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>chipeight.ico</ApplicationIcon>
+    <ApplicationIcon>..\chipeight.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>ChipEight.WinFormsApp.Program</StartupObject>
@@ -84,7 +84,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="chipeight.ico" />
+    <Content Include="..\chipeight.ico" />
+    <None Include="..\SoundSample.wav" />
   </ItemGroup>
   <Import Project="..\ChipEight\ChipEight.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

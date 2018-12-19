@@ -26,6 +26,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Media;
+
+using ChipEight.ConsoleApp.Properties;
 
 namespace ChipEight.ConsoleApp
 {
@@ -37,12 +40,16 @@ namespace ChipEight.ConsoleApp
 
         public bool[] KeyState { get; private set; } = new bool[Chip8Emu.NumKeys];
 
+        private SoundPlayer SoundPlayer = new SoundPlayer(Resources.SoundSample);
+
         public void StartBeep()
         {
+            SoundPlayer.PlayLooping();
         }
 
         public void StopBeep()
         {
+            SoundPlayer.Stop();
         }
 
         public bool[] GetKeyState()

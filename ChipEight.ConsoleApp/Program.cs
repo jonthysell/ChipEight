@@ -167,7 +167,7 @@ namespace ChipEight.ConsoleApp
             CTS.Cancel();
         }
 
-        private static TimeSpan ViewDelay = TimeSpan.FromSeconds(1 / 60.0);
+        private static readonly TimeSpan ViewDelay = TimeSpan.FromSeconds(1 / 60.0);
 
     }
 }

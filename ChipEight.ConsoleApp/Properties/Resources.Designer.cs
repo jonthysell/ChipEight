@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ChipEight.WinFormsApp.Properties {
+namespace ChipEight.ConsoleApp.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace ChipEight.WinFormsApp.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ChipEight.WinFormsApp.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ChipEight.ConsoleApp.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,78 +57,6 @@ namespace ChipEight.WinFormsApp.Properties {
             }
             set {
                 resourceCulture = value;
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to About ChipEight.WinFormsApp.
-        /// </summary>
-        internal static string AboutCaption {
-            get {
-                return ResourceManager.GetString("AboutCaption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Exception.
-        /// </summary>
-        internal static string ExceptionCaption {
-            get {
-                return ResourceManager.GetString("ExceptionCaption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}.
-        /// </summary>
-        internal static string ExceptionTextFormat {
-            get {
-                return ResourceManager.GetString("ExceptionTextFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Keyboard Mapping.
-        /// </summary>
-        internal static string KeyboardMappingCaption {
-            get {
-                return ResourceManager.GetString("KeyboardMappingCaption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Enable the Load/Store quirk? (No for most roms).
-        /// </summary>
-        internal static string LoadStoreQuirkMessage {
-            get {
-                return ResourceManager.GetString("LoadStoreQuirkMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open CHIP-8 ROM.
-        /// </summary>
-        internal static string OpenTitle {
-            get {
-                return ResourceManager.GetString("OpenTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Quirk Prompt.
-        /// </summary>
-        internal static string QuirkCaption {
-            get {
-                return ResourceManager.GetString("QuirkCaption", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Enable the Shift quirk? (No for most roms).
-        /// </summary>
-        internal static string ShiftQuirkMessage {
-            get {
-                return ResourceManager.GetString("ShiftQuirkMessage", resourceCulture);
             }
         }
         

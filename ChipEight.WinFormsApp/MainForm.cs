@@ -30,6 +30,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Media;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -60,15 +61,15 @@ namespace ChipEight.WinFormsApp
             }
         }
 
-        public static Chip8Emu Emulator { get; private set; } = null;
+        public Chip8Emu Emulator { get; private set; } = null;
 
-        public static LogLevel LogLevel { get; private set; } = LogLevel.DebugInfo;
+        public LogLevel LogLevel { get; private set; } = LogLevel.DebugInfo;
 
-        public static CancellationTokenSource CTS { get; private set; } = null;
+        public CancellationTokenSource CTS { get; private set; } = null;
 
-        public static Task DisplayTask { get; private set; } = null;
+        public Task DisplayTask { get; private set; } = null;
 
-        private static TimeSpan ViewDelay = TimeSpan.FromSeconds(1 / 60.0);
+        private SoundPlayer SoundPlayer = new SoundPlayer(Resources.SoundSample);
 
         public MainForm()
         {
@@ -84,10 +85,12 @@ namespace ChipEight.WinFormsApp
 
         public void StartBeep()
         {
+            SoundPlayer.PlayLooping();
         }
 
         public void StopBeep()
         {
+            SoundPlayer.Stop();
         }
 
         public bool[] GetKeyState()
@@ -434,6 +437,8 @@ namespace ChipEight.WinFormsApp
                 case Keys.V: SetKeyByName("F", false); break;
             }
         }
+
+        private static readonly TimeSpan ViewDelay = TimeSpan.FromSeconds(1 / 60.0);
 
         private static readonly string[] _license = {
             @"Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the ""Software""), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:",
