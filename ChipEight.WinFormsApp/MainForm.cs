@@ -78,9 +78,10 @@ namespace ChipEight.WinFormsApp
 #if DEBUG
             LogLevel = LogLevel.DebugInfo;
 #endif
+            UpdateConfig();
         }
 
-#region IChip8EmuView
+        #region IChip8EmuView
 
         public bool[,] DisplayBuffer { get; private set; } = new bool[Chip8Emu.DisplayColumns, Chip8Emu.DisplayRows];
 
@@ -123,7 +124,7 @@ namespace ChipEight.WinFormsApp
             DisplayBuffer = displayData;
         }
 
-#endregion
+        #endregion
 
         public void DrawDisplay()
         {
@@ -238,6 +239,8 @@ namespace ChipEight.WinFormsApp
             MessageBox.Show(string.Format(Resources.ExceptionTextFormat, ex.Message, ex.StackTrace), Resources.ExceptionCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        #region File Menu
+
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
@@ -289,6 +292,10 @@ namespace ChipEight.WinFormsApp
             {
                 HandleException(ex);
             }
+            finally
+            {
+                UpdateConfig();
+            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -302,6 +309,110 @@ namespace ChipEight.WinFormsApp
                 HandleException(ex);
             }
         }
+
+        #endregion
+
+        #region Config Menu
+
+        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Emulator?.Reset();
+                Array.Clear(DisplayBuffer, 0, DisplayBuffer.Length);
+                DrawDisplay();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            finally
+            {
+                UpdateConfig();
+            }
+        }
+
+        private void debugLoggingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (LogLevel == LogLevel.DebugInfo)
+                {
+                    LogLevel = LogLevel.Info;
+                    Log("Debug logging disabled.", LogLevel.Info);
+                }
+                else
+                {
+                    LogLevel = LogLevel.DebugInfo;
+                    Log("Debug logging enabled.", LogLevel.Info);
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            finally
+            {
+                UpdateConfig();
+            }
+        }
+
+        private void loadStoreQuirkToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (null != Emulator)
+                {
+                    Emulator.LoadStoreQuirkEnabled = !Emulator.LoadStoreQuirkEnabled;
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            finally
+            {
+                UpdateConfig();
+            }
+        }
+
+        private void shiftQuirkToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (null != Emulator)
+                {
+                    Emulator.ShiftQuirkEnabled = !Emulator.ShiftQuirkEnabled;
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            finally
+            {
+                UpdateConfig();
+            }
+        }
+
+        private void UpdateConfig()
+        {
+            bool activeEmulator = (null != Emulator);
+
+            resetToolStripMenuItem.Enabled = activeEmulator;
+
+            debugLoggingToolStripMenuItem.Checked = LogLevel == LogLevel.DebugInfo;
+
+            loadStoreQuirkToolStripMenuItem.Enabled = activeEmulator;
+            loadStoreQuirkToolStripMenuItem.Checked = activeEmulator && Emulator.LoadStoreQuirkEnabled;
+
+            shiftQuirkToolStripMenuItem.Enabled = activeEmulator;
+            shiftQuirkToolStripMenuItem.Checked = activeEmulator && Emulator.ShiftQuirkEnabled;
+        }
+
+        #endregion
+
+        #region Help Menu
 
         private void keyboardMappingToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -343,6 +454,8 @@ namespace ChipEight.WinFormsApp
                 HandleException(ex);
             }
         }
+
+        #endregion
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {

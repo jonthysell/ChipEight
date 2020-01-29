@@ -36,6 +36,7 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.keyboardMappingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -58,7 +59,13 @@
             this.key3Button = new System.Windows.Forms.Button();
             this.key2Button = new System.Windows.Forms.Button();
             this.key1Button = new System.Windows.Forms.Button();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.quirksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.debugLoggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadStoreQuirkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.shiftQuirkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.mainTableLayoutPanel.SuspendLayout();
@@ -70,6 +77,7 @@
             // 
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
+            this.configToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
@@ -90,20 +98,20 @@
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openToolStripMenuItem.Text = "&Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(152, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeyDisplayString = "Alt+F4";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -123,6 +131,11 @@
             this.keyboardMappingToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
             this.keyboardMappingToolStripMenuItem.Text = "&Keyboard Mapping";
             this.keyboardMappingToolStripMenuItem.Click += new System.EventHandler(this.keyboardMappingToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(238, 6);
             // 
             // aboutToolStripMenuItem
             // 
@@ -448,10 +461,58 @@
             this.key1Button.MouseDown += new System.Windows.Forms.MouseEventHandler(this.keyPadMouseDown);
             this.key1Button.MouseUp += new System.Windows.Forms.MouseEventHandler(this.keyPadMouseUp);
             // 
-            // toolStripSeparator2
+            // configToolStripMenuItem
             // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(238, 6);
+            this.configToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.resetToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.debugLoggingToolStripMenuItem,
+            this.quirksToolStripMenuItem});
+            this.configToolStripMenuItem.Name = "configToolStripMenuItem";
+            this.configToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
+            this.configToolStripMenuItem.Text = "&Config";
+            // 
+            // resetToolStripMenuItem
+            // 
+            this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
+            this.resetToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.resetToolStripMenuItem.Text = "&Reset";
+            this.resetToolStripMenuItem.Click += new System.EventHandler(this.resetToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
+            // 
+            // quirksToolStripMenuItem
+            // 
+            this.quirksToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.loadStoreQuirkToolStripMenuItem,
+            this.shiftQuirkToolStripMenuItem});
+            this.quirksToolStripMenuItem.Name = "quirksToolStripMenuItem";
+            this.quirksToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.quirksToolStripMenuItem.Text = "&Quirks";
+            // 
+            // debugLoggingToolStripMenuItem
+            // 
+            this.debugLoggingToolStripMenuItem.Name = "debugLoggingToolStripMenuItem";
+            this.debugLoggingToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.debugLoggingToolStripMenuItem.Text = "&Debug Logging";
+            this.debugLoggingToolStripMenuItem.Click += new System.EventHandler(this.debugLoggingToolStripMenuItem_Click);
+            // 
+            // loadStoreQuirkToolStripMenuItem
+            // 
+            this.loadStoreQuirkToolStripMenuItem.Name = "loadStoreQuirkToolStripMenuItem";
+            this.loadStoreQuirkToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadStoreQuirkToolStripMenuItem.Text = "&Load / Store Quirk";
+            this.loadStoreQuirkToolStripMenuItem.Click += new System.EventHandler(this.loadStoreQuirkToolStripMenuItem_Click);
+            // 
+            // shiftQuirkToolStripMenuItem
+            // 
+            this.shiftQuirkToolStripMenuItem.Name = "shiftQuirkToolStripMenuItem";
+            this.shiftQuirkToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.shiftQuirkToolStripMenuItem.Text = "&Shift Quirk";
+            this.shiftQuirkToolStripMenuItem.Click += new System.EventHandler(this.shiftQuirkToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -513,6 +574,13 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem keyboardMappingToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem configToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem quirksToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem debugLoggingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadStoreQuirkToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem shiftQuirkToolStripMenuItem;
     }
 }
 
