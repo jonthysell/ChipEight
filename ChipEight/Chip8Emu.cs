@@ -662,6 +662,8 @@ namespace ChipEight
         public const int SpriteWidth = 8;
 
         public const uint DefaultCycleRateHz = 540;
+        public const uint TurboCycleRateHz = 1080;
+
         public const uint DefaultDisplayRateHz = 60;
         public const uint TimerRateHz = 60;
 

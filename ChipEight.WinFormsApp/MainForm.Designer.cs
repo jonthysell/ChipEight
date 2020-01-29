@@ -66,6 +66,9 @@
             this.debugLoggingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadStoreQuirkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.shiftQuirkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cPUCycleRateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.defaultSpeedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.turboSpeedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.mainTableLayoutPanel.SuspendLayout();
@@ -464,10 +467,11 @@
             // configToolStripMenuItem
             // 
             this.configToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cPUCycleRateToolStripMenuItem,
             this.resetToolStripMenuItem,
             this.toolStripSeparator3,
-            this.debugLoggingToolStripMenuItem,
-            this.quirksToolStripMenuItem});
+            this.quirksToolStripMenuItem,
+            this.debugLoggingToolStripMenuItem});
             this.configToolStripMenuItem.Name = "configToolStripMenuItem";
             this.configToolStripMenuItem.Size = new System.Drawing.Size(55, 20);
             this.configToolStripMenuItem.Text = "&Config";
@@ -513,6 +517,29 @@
             this.shiftQuirkToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.shiftQuirkToolStripMenuItem.Text = "&Shift Quirk";
             this.shiftQuirkToolStripMenuItem.Click += new System.EventHandler(this.shiftQuirkToolStripMenuItem_Click);
+            // 
+            // cPUCycleRateToolStripMenuItem
+            // 
+            this.cPUCycleRateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.defaultSpeedToolStripMenuItem,
+            this.turboSpeedToolStripMenuItem});
+            this.cPUCycleRateToolStripMenuItem.Name = "cPUCycleRateToolStripMenuItem";
+            this.cPUCycleRateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.cPUCycleRateToolStripMenuItem.Text = "&CPU Cycle Rate";
+            // 
+            // defaultSpeedToolStripMenuItem
+            // 
+            this.defaultSpeedToolStripMenuItem.Name = "defaultSpeedToolStripMenuItem";
+            this.defaultSpeedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.defaultSpeedToolStripMenuItem.Text = "&Default (540 Hz)";
+            this.defaultSpeedToolStripMenuItem.Click += new System.EventHandler(this.defaultSpeedToolStripMenuItem_Click);
+            // 
+            // turboSpeedToolStripMenuItem
+            // 
+            this.turboSpeedToolStripMenuItem.Name = "turboSpeedToolStripMenuItem";
+            this.turboSpeedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.turboSpeedToolStripMenuItem.Text = "&Turbo (1080 Hz)";
+            this.turboSpeedToolStripMenuItem.Click += new System.EventHandler(this.turboSpeedToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -581,6 +608,9 @@
         private System.Windows.Forms.ToolStripMenuItem debugLoggingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadStoreQuirkToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem shiftQuirkToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cPUCycleRateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem defaultSpeedToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem turboSpeedToolStripMenuItem;
     }
 }
 

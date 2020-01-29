@@ -71,6 +71,8 @@ namespace ChipEight.WinFormsApp
 
         private SoundPlayer SoundPlayer = new SoundPlayer(Resources.SoundSample);
 
+        public bool ResetRequested { get; private set; } = false;
+
         public MainForm()
         {
             InitializeComponent();
@@ -314,13 +316,14 @@ namespace ChipEight.WinFormsApp
 
         #region Config Menu
 
-        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
+        private void defaultSpeedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
-                Emulator?.Reset();
-                Array.Clear(DisplayBuffer, 0, DisplayBuffer.Length);
-                DrawDisplay();
+                if (null != Emulator)
+                {
+                    Emulator.CycleRateHz = Chip8Emu.DefaultCycleRateHz;
+                }
             }
             catch (Exception ex)
             {
@@ -332,19 +335,34 @@ namespace ChipEight.WinFormsApp
             }
         }
 
-        private void debugLoggingToolStripMenuItem_Click(object sender, EventArgs e)
+        private void turboSpeedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
-                if (LogLevel == LogLevel.DebugInfo)
+                if (null != Emulator)
                 {
-                    LogLevel = LogLevel.Info;
-                    Log("Debug logging disabled.", LogLevel.Info);
+                    Emulator.CycleRateHz = Chip8Emu.TurboCycleRateHz;
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            finally
+            {
+                UpdateConfig();
+            }
+        }
+
+        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (null != Emulator)
                 {
-                    LogLevel = LogLevel.DebugInfo;
-                    Log("Debug logging enabled.", LogLevel.Info);
+                    Emulator.Reset();
+                    Array.Clear(DisplayBuffer, 0, DisplayBuffer.Length);
+                    DrawDisplay();
                 }
             }
             catch (Exception ex)
@@ -395,19 +413,54 @@ namespace ChipEight.WinFormsApp
             }
         }
 
+        private void debugLoggingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (LogLevel == LogLevel.DebugInfo)
+                {
+                    LogLevel = LogLevel.Info;
+                    Log("Debug logging disabled.", LogLevel.Info);
+                }
+                else
+                {
+                    LogLevel = LogLevel.DebugInfo;
+                    Log("Debug logging enabled.", LogLevel.Info);
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            finally
+            {
+                UpdateConfig();
+            }
+        }
+
         private void UpdateConfig()
         {
             bool activeEmulator = (null != Emulator);
 
+            cPUCycleRateToolStripMenuItem.Enabled = activeEmulator;
+
+            defaultSpeedToolStripMenuItem.Enabled = activeEmulator;
+            defaultSpeedToolStripMenuItem.Checked = activeEmulator && Emulator.CycleRateHz == Chip8Emu.DefaultCycleRateHz;
+
+            turboSpeedToolStripMenuItem.Enabled = activeEmulator;
+            turboSpeedToolStripMenuItem.Checked = activeEmulator && Emulator.CycleRateHz == Chip8Emu.TurboCycleRateHz;
+
             resetToolStripMenuItem.Enabled = activeEmulator;
 
-            debugLoggingToolStripMenuItem.Checked = LogLevel == LogLevel.DebugInfo;
+            quirksToolStripMenuItem.Enabled = activeEmulator;
 
             loadStoreQuirkToolStripMenuItem.Enabled = activeEmulator;
             loadStoreQuirkToolStripMenuItem.Checked = activeEmulator && Emulator.LoadStoreQuirkEnabled;
 
             shiftQuirkToolStripMenuItem.Enabled = activeEmulator;
             shiftQuirkToolStripMenuItem.Checked = activeEmulator && Emulator.ShiftQuirkEnabled;
+
+            debugLoggingToolStripMenuItem.Checked = LogLevel == LogLevel.DebugInfo;
         }
 
         #endregion
@@ -489,7 +542,7 @@ namespace ChipEight.WinFormsApp
         private void keyPadKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Space && sender is Button b)
-             {
+            {
                 SetKeyByName(b.Text, true);
             }
             else

@@ -59,7 +59,7 @@ namespace ChipEight.ConsoleApp
 
         public static CancellationTokenSource CTS { get; private set; } = new CancellationTokenSource();
 
-        public static LogLevel LogLevel { get; private set; } = LogLevel.DebugInfo;
+        public static LogLevel LogLevel { get; private set; } = LogLevel.Info;
 
         public static void Main(string[] args)
         {
@@ -68,13 +68,19 @@ namespace ChipEight.ConsoleApp
             Console.CursorVisible = false;
 
             Console.CancelKeyPress += Console_CancelKeyPress;
-            
+
+#if DEBUG
+            LogLevel = LogLevel.DebugInfo;
+#endif
+
             try
             {
                 // Parse args
                 bool? shiftQuirkEnabled = null;
                 bool? loadStoreQuirkEnabled = null;
                 string romFile = "";
+
+                bool turbo = false;
 
                 for (int i = 0; i < args.Length; i++)
                 {
@@ -91,6 +97,10 @@ namespace ChipEight.ConsoleApp
                         case "-shiftquirk":
                         case "/shiftquirk":
                             shiftQuirkEnabled = true;
+                            break;
+                        case "-turbo":
+                        case "/turbo":
+                            turbo = true;
                             break;
                         default:
                             romFile = args[i];
@@ -121,6 +131,11 @@ namespace ChipEight.ConsoleApp
                 {
                     View.Log("Forcing ShiftQuirkEnabled.", LogLevel.Info);
                     Emulator.ShiftQuirkEnabled = shiftQuirkEnabled.Value;
+                }
+
+                if (turbo)
+                {
+                    Emulator.CycleRateHz = Chip8Emu.TurboCycleRateHz;
                 }
 
                 View.Log("Ready.", LogLevel.Info);
@@ -161,8 +176,9 @@ namespace ChipEight.ConsoleApp
             Console.WriteLine("ChipEight.ConsoleApp.exe [options] RomFile");
             Console.WriteLine();
             Console.WriteLine("Options:");
-            Console.WriteLine("/shift      Enable the Shift quirk (required by some roms)");
             Console.WriteLine("/loadstore  Enable the Load/Store quirk (required by some roms)");
+            Console.WriteLine("/shift      Enable the Shift quirk (required by some roms)");
+            Console.WriteLine("/turbo      Enable turbo mode (double cycle rate)");
             Console.WriteLine();
             Console.WriteLine("Control Mapping:");
             Console.WriteLine("  Keys  | Key Pad ");
