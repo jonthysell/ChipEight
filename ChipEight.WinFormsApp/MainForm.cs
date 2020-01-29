@@ -4,7 +4,7 @@
 // Author:
 //       Jon Thysell <thysell@gmail.com>
 // 
-// Copyright (c) 2018 Jon Thysell <http://jonthysell.com>
+// Copyright (c) 2018, 2020 Jon Thysell <http://jonthysell.com>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,7 @@ namespace ChipEight.WinFormsApp
 
         public Chip8Emu Emulator { get; private set; } = null;
 
-        public LogLevel LogLevel { get; private set; } = LogLevel.DebugInfo;
+        public LogLevel LogLevel { get; private set; } = LogLevel.Info;
 
         public CancellationTokenSource CTS { get; private set; } = null;
 
@@ -75,9 +75,12 @@ namespace ChipEight.WinFormsApp
         {
             InitializeComponent();
             Text = ProgramName;
+#if DEBUG
+            LogLevel = LogLevel.DebugInfo;
+#endif
         }
 
-        #region IChip8EmuView
+#region IChip8EmuView
 
         public bool[,] DisplayBuffer { get; private set; } = new bool[Chip8Emu.DisplayColumns, Chip8Emu.DisplayRows];
 
@@ -104,6 +107,8 @@ namespace ChipEight.WinFormsApp
         {
             if ((int)LogLevel >= (int)level)
             {
+                Console.WriteLine(s);
+
                 MethodInvoker updater = delegate
                 {
                     statusLabel.Text = s;
@@ -118,7 +123,7 @@ namespace ChipEight.WinFormsApp
             DisplayBuffer = displayData;
         }
 
-        #endregion
+#endregion
 
         public void DrawDisplay()
         {
@@ -256,8 +261,9 @@ namespace ChipEight.WinFormsApp
 
                     DisplayBuffer = new bool[Chip8Emu.DisplayColumns, Chip8Emu.DisplayRows];
 
-                    Emulator.ShiftQuirkEnabled = DialogResult.Yes == MessageBox.Show(Resources.ShiftQuirkMessage, Resources.QuirkCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-                    Emulator.LoadStoreQuirkEnabled = DialogResult.Yes == MessageBox.Show(Resources.LoadStoreQuirkMessage, Resources.QuirkCaption, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                    Emulator.TryConfigureQuirks();
+
+                    Log("Ready.", LogLevel.Info);
                 }
 
                 CTS = new CancellationTokenSource();

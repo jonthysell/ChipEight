@@ -4,7 +4,7 @@
 // Author:
 //       Jon Thysell <thysell@gmail.com>
 // 
-// Copyright (c) 2018 Jon Thysell <http://jonthysell.com>
+// Copyright (c) 2018, 2020 Jon Thysell <http://jonthysell.com>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -72,25 +72,25 @@ namespace ChipEight.ConsoleApp
             try
             {
                 // Parse args
-                bool shiftQuirkEnabled = false;
-                bool loadStoreQuirkEnabled = false;
+                bool? shiftQuirkEnabled = null;
+                bool? loadStoreQuirkEnabled = null;
                 string romFile = "";
 
                 for (int i = 0; i < args.Length; i++)
                 {
                     switch (args[i].ToLower())
                     {
-                        case "-shift":
-                        case "/shift":
-                        case "-shiftquirk":
-                        case "/shiftquirk":
-                            shiftQuirkEnabled = true;
-                            break;
                         case "-loadstore":
                         case "/loadstore":
                         case "-loadstorequirk":
                         case "/loadstorequirk":
                             loadStoreQuirkEnabled = true;
+                            break;
+                        case "-shift":
+                        case "/shift":
+                        case "-shiftquirk":
+                        case "/shiftquirk":
+                            shiftQuirkEnabled = true;
                             break;
                         default:
                             romFile = args[i];
@@ -109,8 +109,21 @@ namespace ChipEight.ConsoleApp
                 byte[] romData = File.ReadAllBytes(romFile);
                 Emulator = new Chip8Emu(View, romData);
 
-                Emulator.ShiftQuirkEnabled = shiftQuirkEnabled;
-                Emulator.LoadStoreQuirkEnabled = loadStoreQuirkEnabled;
+                Emulator.TryConfigureQuirks();
+
+                if (loadStoreQuirkEnabled.HasValue)
+                {
+                    View.Log("Forcing LoadStoreQuirkEnabled.", LogLevel.Info);
+                    Emulator.LoadStoreQuirkEnabled = loadStoreQuirkEnabled.Value;
+                }
+
+                if (shiftQuirkEnabled.HasValue)
+                {
+                    View.Log("Forcing ShiftQuirkEnabled.", LogLevel.Info);
+                    Emulator.ShiftQuirkEnabled = shiftQuirkEnabled.Value;
+                }
+
+                View.Log("Ready.", LogLevel.Info);
 
                 Task uiTask = Task.Factory.StartNew(() =>
                 {

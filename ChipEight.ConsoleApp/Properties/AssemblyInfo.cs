@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Jon Thysell")]
 [assembly: AssemblyProduct("ChipEight")]
-[assembly: AssemblyCopyright("Copyright © Jon Thysell 2018")]
+[assembly: AssemblyCopyright("Copyright © Jon Thysell 2018-2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

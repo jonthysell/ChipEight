@@ -11,6 +11,12 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ChipEight", "ChipEight\Chip
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChipEight.WinFormsApp", "ChipEight.WinFormsApp\ChipEight.WinFormsApp.csproj", "{57341826-E683-45E2-9916-6D9CFEA3C755}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4650CDE2-7DDC-4B11-8FE6-FA48EE9A65CF}"
+	ProjectSection(SolutionItems) = preProject
+		LICENCE.md = LICENCE.md
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ChipEight\ChipEight.projitems*{57341826-e683-45e2-9916-6d9cfea3c755}*SharedItemsImports = 4

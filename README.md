@@ -28,4 +28,4 @@ ChipEight is developed in C# for .NET 4.6.1.
 
 ChipEight is open-source under the MIT license.
 
-ChipEight Copyright (c) 2018 Jon Thysell
+ChipEight Copyright (c) 2018-2020 Jon Thysell

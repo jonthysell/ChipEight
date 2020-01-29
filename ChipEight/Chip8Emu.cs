@@ -4,7 +4,7 @@
 // Author:
 //       Jon Thysell <thysell@gmail.com>
 // 
-// Copyright (c) 2018 Jon Thysell <http://jonthysell.com>
+// Copyright (c) 2018, 2020 Jon Thysell <http://jonthysell.com>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -49,6 +51,8 @@ namespace ChipEight
         public byte[] DataRegisters { get; private set; } = new byte[DataRegisterCount];  // V0-VF
 
         public ushort AddressRegister { get; set; } // I
+
+        private readonly byte[] RomData;
 
         #endregion
 
@@ -149,15 +153,10 @@ namespace ChipEight
 
             _view = view ?? throw new ArgumentNullException(nameof(view));
 
+            RomData = new byte[romData.Length];
+            Array.Copy(romData, RomData, romData.Length);
+
             Reset();
-
-            _view.Log("Loading FontSet.", LogLevel.Info);
-            Array.Copy(FontSet, Memory, FontSet.Length);
-
-            _view.Log("Loading ROM...", LogLevel.Info);
-            Array.Copy(romData, 0, Memory, RomStart, romData.Length);
-
-            _view.Log("Ready.", LogLevel.Info);
         }
 
         #endregion
@@ -190,6 +189,14 @@ namespace ChipEight
 
             _random = new Random();
             _curentCycle = 0;
+
+            _view.Log("Loading FontSet into Memory...", LogLevel.Info);
+            Array.Copy(FontSet, Memory, FontSet.Length);
+
+            _view.Log("Loading ROM into Memory...", LogLevel.Info);
+            Array.Copy(RomData, 0, Memory, RomStart, RomData.Length);
+
+            _view.Log("Reset.", LogLevel.Info);
         }
 
         public Task Start(CancellationTokenSource cts)
@@ -574,6 +581,69 @@ namespace ChipEight
             bool[] keyState = _view.GetKeyState();
             Array.Copy(keyState, KeyState, keyState.Length);
         }
+
+        #endregion
+
+        #region Quirk Configuration Helpers
+
+        public bool TryConfigureQuirks()
+        {
+            string key = GetHashString(RomData);
+
+            _view.Log($"Looking up quirk config for {key}...", LogLevel.Info);
+
+            if (_knownRoms.TryGetValue(key, out QuirkConfigInfo config))
+            {
+                _view.Log($"Quirk config found: {config.RomName} {{{config.LoadStoreQuirkEnabled}, {config.ShiftQuirkEnabled}}}.", LogLevel.Info);
+                LoadStoreQuirkEnabled = config.LoadStoreQuirkEnabled;
+                ShiftQuirkEnabled = config.ShiftQuirkEnabled;
+                return true;
+            }
+
+            _view.Log("Quirk config not found.", LogLevel.Info);
+            return false;
+        }
+
+        private static string GetHashString(byte[] romData)
+        {
+            byte[] hash = MD5.Create().ComputeHash(romData);
+
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("x2"));
+            }
+
+            return sb.ToString();
+        }
+
+        private struct QuirkConfigInfo
+        {
+            public readonly string RomName;
+            public readonly bool LoadStoreQuirkEnabled;
+            public readonly bool ShiftQuirkEnabled;
+
+            public QuirkConfigInfo(string romName, bool loadStoreQuirkEnabled = false, bool shiftQuirkEnabled = false)
+            {
+                RomName = romName;
+                LoadStoreQuirkEnabled = loadStoreQuirkEnabled;
+                ShiftQuirkEnabled = shiftQuirkEnabled;
+            }
+        }
+
+        // Based on list at https://github.com/mir3z/chip8-emu/blob/master/roms/roms.json
+        private static Dictionary<string, QuirkConfigInfo> _knownRoms = new Dictionary<string, QuirkConfigInfo>()
+        {
+            {  "a7b171e6f738913f89153262b01581ba", new QuirkConfigInfo("ASTRO DODGE", true, false) },
+            {  "e1c84e1156174070661c1f6ca0481ba5", new QuirkConfigInfo("BLINKY", true, true) },
+            {  "b9de0abe03ff2c51a6fad909d8697c0f", new QuirkConfigInfo("BMP VIEWER", false, true) },
+            {  "4fe20b951dbc801d7f682b88e672626c", new QuirkConfigInfo("INVADERS", false, true) },
+            {  "eb7274e785d9bf6228e0e8c589bd922a", new QuirkConfigInfo("KEYPAD TEST", false, true) },
+            {  "550dfbf87cf1dc62104e22def4378b3b", new QuirkConfigInfo("ROCKET LAUNCH", true, false) },
+            {  "a67f58742cff77702cc64c64413dc37d", new QuirkConfigInfo("SPACE INVADERS", false, true) },
+            {  "42576d87b2ffb7f4bf4a0f0446041534", new QuirkConfigInfo("STARS DEMO", true, false) },
+        };
 
         #endregion
 
