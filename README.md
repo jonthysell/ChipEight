@@ -1,4 +1,4 @@
-![ChipEight ScreenShot](https://jonthysell.files.wordpress.com/2018/12/chipeightscreenshot.png)
+![ChipEight ScreenShot](./.github/screenshot.png)
 
 # ChipEight #
 
