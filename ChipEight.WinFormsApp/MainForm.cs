@@ -71,7 +71,7 @@ namespace ChipEight.WinFormsApp
 
         private SoundPlayer SoundPlayer = new SoundPlayer(Resources.SoundSample);
 
-        public bool ResetRequested { get; private set; } = false;
+        public string LastRomFile { get; private set; } = "";
 
         public MainForm()
         {
@@ -81,6 +81,74 @@ namespace ChipEight.WinFormsApp
             LogLevel = LogLevel.DebugInfo;
 #endif
             UpdateConfig();
+        }
+
+        public void LoadRom(string romFile, bool prompt)
+        {
+            try
+            {
+                CTS?.Cancel();
+                Emulator?.Stop();
+                DisplayTask?.Wait();
+
+                if (prompt)
+                {
+                    OpenFileDialog dialog = new OpenFileDialog();
+
+                    dialog.Title = Resources.OpenTitle;
+                    if (File.Exists(romFile))
+                    {
+                        dialog.InitialDirectory = Path.GetDirectoryName(romFile);
+                        dialog.FileName = Path.GetFileName(romFile);
+                    }
+
+                    romFile = dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : "";
+                }
+
+                if (!string.IsNullOrWhiteSpace(romFile) && File.Exists(romFile))
+                {
+                    LastRomFile = romFile;
+
+                    Log($"Loading ROM: {romFile}", LogLevel.Info);
+
+                    byte[] romData = File.ReadAllBytes(romFile);
+                    Emulator = new Chip8Emu(this, romData);
+
+                    DisplayBuffer = new bool[Chip8Emu.DisplayColumns, Chip8Emu.DisplayRows];
+
+                    Emulator.TryConfigureQuirks();
+
+                    Log("Ready.", LogLevel.Info);
+                }
+
+                CTS = new CancellationTokenSource();
+
+                Emulator?.Start(CTS);
+                DisplayTask = Task.Factory.StartNew(() =>
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+
+                    while (!CTS.Token.IsCancellationRequested)
+                    {
+                        if (sw.Elapsed >= ViewDelay)
+                        {
+                            DrawDisplay();
+                            sw.Restart();
+                        }
+                        Thread.Yield();
+                    }
+                });
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            finally
+            {
+                UpdateConfig();
+            }
         }
 
         #region IChip8EmuView
@@ -245,59 +313,7 @@ namespace ChipEight.WinFormsApp
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            try
-            {
-                CTS?.Cancel();
-                Emulator?.Stop();
-                DisplayTask?.Wait();
-
-                OpenFileDialog dialog = new OpenFileDialog();
-
-                dialog.Title = Resources.OpenTitle;
-
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    string romFile = dialog.FileName;
-
-                    Log($"Loading ROM: {romFile}", LogLevel.Info);
-
-                    byte[] romData = File.ReadAllBytes(romFile);
-                    Emulator = new Chip8Emu(this, romData);
-
-                    DisplayBuffer = new bool[Chip8Emu.DisplayColumns, Chip8Emu.DisplayRows];
-
-                    Emulator.TryConfigureQuirks();
-
-                    Log("Ready.", LogLevel.Info);
-                }
-
-                CTS = new CancellationTokenSource();
-
-                Emulator?.Start(CTS);
-                DisplayTask = Task.Factory.StartNew(() =>
-                {
-                    Stopwatch sw = new Stopwatch();
-                    sw.Start();
-
-                    while (!CTS.Token.IsCancellationRequested)
-                    {
-                        if (sw.Elapsed >= ViewDelay)
-                        {
-                            DrawDisplay();
-                            sw.Restart();
-                        }
-                        Thread.Yield();
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-            }
-            finally
-            {
-                UpdateConfig();
-            }
+            LoadRom(LastRomFile, true);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)

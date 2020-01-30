@@ -4,7 +4,7 @@
 // Author:
 //       Jon Thysell <thysell@gmail.com>
 // 
-// Copyright (c) 2018 Jon Thysell <http://jonthysell.com>
+// Copyright (c) 2018, 2020 Jon Thysell <http://jonthysell.com>
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,8 @@
 using System;
 using System.Windows.Forms;
 
+using ChipEight.WinFormsApp.Properties;
+
 namespace ChipEight.WinFormsApp
 {
     static class Program
@@ -35,11 +37,29 @@ namespace ChipEight.WinFormsApp
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            try
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+                MainForm form = new MainForm();
+
+                if (null != args && args.Length >= 1)
+                {
+                    form.Load += (s, e) =>
+                    {
+                        form.LoadRom(args[0], false);
+                    };
+                }
+
+                Application.Run(form);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format(Resources.ExceptionTextFormat, ex.Message, ex.StackTrace), Resources.ExceptionCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
